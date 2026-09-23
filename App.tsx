@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import {
   Alert,
   Dimensions,
-  Linking,
   Pressable,
   SafeAreaView,
   ScrollView,
@@ -26,9 +25,20 @@ const colors = {
   teal: '#18A999',
   tealSoft: '#E7F8F5',
   yellow: '#F4B942',
+  blue: '#EAF3FA',
+  red: '#D94A38',
 };
 
 type Tab = 'home' | 'guides' | 'garage' | 'profile';
+
+type NearbyService = {
+  icon: string;
+  label: string;
+  distance: string;
+  eta: string;
+  available: string;
+  tint: string;
+};
 
 const symptoms = [
   { icon: '🔋', label: 'Dead battery', color: '#FFF4D9' },
@@ -41,6 +51,14 @@ const guides = [
   { icon: '🔋', title: 'How to jump-start safely', time: '5 min read', tag: 'Most popular' },
   { icon: '🛞', title: 'Change a flat tire', time: '8 min read', tag: 'Roadside' },
   { icon: '🧴', title: 'Check your fluids', time: '4 min read', tag: 'Maintenance' },
+];
+
+const nearbyServices: NearbyService[] = [
+  { icon: '⛽', label: 'Gas station', distance: '0.7 mi', eta: '2 min', available: 'Open now', tint: '#FFF3D6' },
+  { icon: '🚚', label: 'Tow company', distance: '1.1 mi', eta: '7 min', available: 'Available', tint: '#EAF3FA' },
+  { icon: '🛠️', label: 'Roadside assistance', distance: '0.9 mi', eta: '5 min', available: 'Dispatching', tint: '#FEEAE8' },
+  { icon: '🛞', label: 'Tire shops', distance: '1.4 mi', eta: '9 min', available: 'Open now', tint: '#EAF9F5' },
+  { icon: '🔧', label: 'Auto parts store', distance: '2.1 mi', eta: '11 min', available: 'Open now', tint: '#F2EAFD' },
 ];
 
 export default function App() {
@@ -93,6 +111,22 @@ export default function App() {
                 <Text style={styles.arrowWhite}>›</Text>
               </Pressable>
 
+              <View style={styles.mapCard}>
+                <View style={styles.mapHeader}>
+                  <Text style={styles.mapTitle}>Nearby services</Text>
+                  <Text style={styles.mapBadge}>5 min</Text>
+                </View>
+                <View style={styles.mapGrid}>
+                  <View style={styles.mapPin} />
+                  <View style={styles.mapPin} />
+                  <View style={styles.mapPin} />
+                  <View style={styles.mapPin} />
+                  <View style={styles.mapPin} />
+                  <View style={styles.mapPin} />
+                </View>
+                <Text style={styles.mapInfo}>Nearest gas station, tow company, tire shop and repair help all within a short drive.</Text>
+              </View>
+
               <View style={styles.sectionHeader}>
                 <Text style={styles.sectionTitle}>What’s happening?</Text>
                 <Pressable onPress={() => setTab('guides')}><Text style={styles.link}>See all</Text></Pressable>
@@ -105,6 +139,25 @@ export default function App() {
                   </Pressable>
                 ))}
               </View>
+
+              <View style={styles.sectionHeader}>
+                <Text style={styles.sectionTitle}>Nearby essentials</Text>
+                <Pressable onPress={() => Alert.alert('Nearby services', 'Filter by gas station, tow truck, tire shop, and parts store.') }><Text style={styles.link}>Filter</Text></Pressable>
+              </View>
+
+              {nearbyServices.map((service) => (
+                <Pressable key={service.label} style={styles.serviceRow} onPress={() => Alert.alert(service.label, `Estimated arrival: ${service.eta}. ${service.available}.`)}>
+                  <View style={[styles.serviceIcon, { backgroundColor: service.tint }]}><Text style={styles.serviceEmoji}>{service.icon}</Text></View>
+                  <View style={styles.serviceCopy}>
+                    <Text style={styles.serviceTitle}>{service.label}</Text>
+                    <Text style={styles.serviceMeta}>{service.distance} away  ·  {service.available}</Text>
+                  </View>
+                  <View style={styles.serviceRight}>
+                    <Text style={styles.serviceEta}>{service.eta}</Text>
+                    <Text style={styles.chevron}>›</Text>
+                  </View>
+                </Pressable>
+              ))}
 
               <View style={styles.sectionHeader}>
                 <Text style={styles.sectionTitle}>Quick guides</Text>
@@ -171,10 +224,16 @@ const styles = StyleSheet.create({
   carBadge: { backgroundColor: '#EAF3FA', borderRadius: 12, padding: 10 }, carIcon: { fontSize: 21 },
   vehicleCopy: { flex: 1, marginLeft: 12 }, vehicleLabel: { fontSize: 10, fontWeight: '800', letterSpacing: 1, color: colors.muted }, vehicleName: { color: colors.ink, fontSize: 15, fontWeight: '700', marginTop: 3 },
   chevron: { color: colors.muted, fontSize: 27, fontWeight: '300' },
-  emergencyCard: { backgroundColor: colors.orange, borderRadius: 19, padding: 18, flexDirection: 'row', alignItems: 'center', marginBottom: 29, shadowColor: colors.orange, shadowOpacity: .22, shadowRadius: 12, shadowOffset: { width: 0, height: 7 }, elevation: 5 },
+  emergencyCard: { backgroundColor: colors.orange, borderRadius: 19, padding: 18, flexDirection: 'row', alignItems: 'center', marginBottom: 20, shadowColor: colors.orange, shadowOpacity: .22, shadowRadius: 12, shadowOffset: { width: 0, height: 7 }, elevation: 5 },
   emergencyIcon: { width: 42, height: 42, borderRadius: 14, backgroundColor: 'rgba(255,255,255,.22)', alignItems: 'center', justifyContent: 'center' }, siren: { color: colors.white, fontSize: 25 }, emergencyCopy: { flex: 1, marginLeft: 13 }, emergencyTitle: { color: colors.white, fontSize: 16, fontWeight: '800' }, emergencySubtitle: { color: '#FFE5DB', fontSize: 12, marginTop: 4 }, arrowWhite: { color: colors.white, fontSize: 28 },
+  mapCard: { backgroundColor: colors.white, borderRadius: 18, padding: 16, borderWidth: 1, borderColor: colors.line, marginBottom: 28 },
+  mapHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }, mapTitle: { color: colors.ink, fontSize: 18, fontWeight: '800' }, mapBadge: { backgroundColor: colors.orangeSoft, color: colors.orange, borderRadius: 999, paddingHorizontal: 10, paddingVertical: 4, fontSize: 11, fontWeight: '800' },
+  mapGrid: { height: 120, borderRadius: 14, backgroundColor: colors.blue, overflow: 'hidden', flexDirection: 'row', flexWrap: 'wrap', padding: 10 },
+  mapPin: { width: 18, height: 18, borderRadius: 12, backgroundColor: colors.orange, opacity: 0.75, margin: 12 },
+  mapInfo: { color: colors.muted, lineHeight: 19, marginTop: 12, fontSize: 12 },
   sectionHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 13 }, sectionTitle: { color: colors.ink, fontSize: 18, fontWeight: '800', marginBottom: 13 }, link: { color: colors.orange, fontWeight: '800', fontSize: 13 },
   symptomGrid: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', marginBottom: 27 }, symptom: { width: (width - 56) / 2, backgroundColor: colors.white, borderRadius: 15, padding: 13, marginBottom: 10, flexDirection: 'row', alignItems: 'center', borderWidth: 1, borderColor: colors.line }, symptomIcon: { borderRadius: 11, padding: 8 }, symptomEmoji: { fontSize: 19 }, symptomLabel: { color: colors.ink, fontWeight: '700', fontSize: 13, marginLeft: 9 },
+  serviceRow: { backgroundColor: colors.white, borderRadius: 15, paddingVertical: 12, paddingHorizontal: 12, flexDirection: 'row', alignItems: 'center', marginBottom: 10, borderWidth: 1, borderColor: colors.line }, serviceIcon: { width: 42, height: 42, borderRadius: 12, alignItems: 'center', justifyContent: 'center' }, serviceEmoji: { fontSize: 22 }, serviceCopy: { flex: 1, marginLeft: 12 }, serviceTitle: { color: colors.ink, fontSize: 15, fontWeight: '800' }, serviceMeta: { color: colors.muted, fontSize: 11, marginTop: 4 }, serviceRight: { alignItems: 'flex-end', marginLeft: 10 }, serviceEta: { color: colors.orange, fontWeight: '800', fontSize: 12 },
   guideRow: { backgroundColor: colors.white, borderRadius: 15, padding: 12, flexDirection: 'row', alignItems: 'center', marginBottom: 10, borderWidth: 1, borderColor: colors.line }, guideIcon: { width: 48, height: 48, borderRadius: 13, backgroundColor: colors.tealSoft, alignItems: 'center', justifyContent: 'center' }, guideEmoji: { fontSize: 23 }, guideCopy: { flex: 1, marginHorizontal: 12 }, guideTitle: { color: colors.ink, fontSize: 14, fontWeight: '750', lineHeight: 19 }, guideMeta: { color: colors.muted, fontSize: 11, marginTop: 5 },
   safetyTip: { backgroundColor: colors.tealSoft, borderRadius: 16, padding: 15, flexDirection: 'row', marginTop: 16 }, tipIcon: { fontSize: 22, marginRight: 10 }, tipCopy: { flex: 1 }, tipTitle: { color: colors.teal, fontWeight: '800', fontSize: 13 }, tipText: { color: '#39766F', fontSize: 12, lineHeight: 18, marginTop: 3 },
   tabBar: { position: 'absolute', left: 0, right: 0, bottom: 0, height: 84, backgroundColor: colors.white, borderTopWidth: 1, borderTopColor: colors.line, flexDirection: 'row', justifyContent: 'space-around', paddingTop: 13 }, tab: { alignItems: 'center', width: 80 }, tabIcon: { color: '#A4AFBC', fontSize: 22, height: 28 }, tabIconActive: { color: colors.orange }, tabLabel: { color: '#A4AFBC', fontSize: 10, fontWeight: '700' }, tabLabelActive: { color: colors.orange },
